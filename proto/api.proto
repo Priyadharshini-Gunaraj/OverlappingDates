@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "json_options.proto";
+
+package overlapping;
+
+option go_package = "./overlapping";
+
+message DateRange {
+  string start_date = 1 [(json_name) = "startDate"];
+  string end_date = 2 [(json_name) = "endDate"];
+}
+
+message DateRangeRequest {
+  DateRange range1 = 1 [(json_name) = "range1"];
+  DateRange range2 = 2 [(json_name) = "range2"];
+}
+
+message DateRangeResponse {
+  bool overlap = 1 [(json_name) = "overlap"];
+}

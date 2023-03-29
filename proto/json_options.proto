@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package overlapping;
+
+option go_package = "./overlapping";
+
+option java_multiple_files = true;
+
+extend google.protobuf.FieldOptions {
+  string json_name = 50000;
+}
