@@ -1,6 +1,6 @@
 # OverlappingDates
 
-# commands
+# Progress
 - cd cmd
 - go run main.go
 
