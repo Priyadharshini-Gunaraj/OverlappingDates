@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -20,25 +19,9 @@ func OverlappingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse each start and end dates
-	_, err = parseISODate(req.Range1.StartDate)
+	err = parseDates(req)
 	if err != nil {
-		log.Fatal("invalid start date: ", err)
-		return
-	}
-	_, err = parseISODate(req.Range1.EndDate)
-	if err != nil {
-		log.Fatal("invalid end date: ", err)
-		return
-	}
-
-	_, err = parseISODate(req.Range2.StartDate)
-	if err != nil {
-		log.Fatal("invalid start date: ", err)
-		return
-	}
-	_, err = parseISODate(req.Range2.EndDate)
-	if err != nil {
-		log.Fatal("invalid end date: ", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -56,6 +39,27 @@ func OverlappingHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func parseDates(req *pb.OverlappingRequest) error {
+	_, err := parseISODate(req.Range1.StartDate)
+	if err != nil {
+		return err
+	}
+	_, err = parseISODate(req.Range1.EndDate)
+	if err != nil {
+		return err
+	}
+
+	_, err = parseISODate(req.Range2.StartDate)
+	if err != nil {
+		return err
+	}
+	_, err = parseISODate(req.Range2.EndDate)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func parseISODate(dateStr string) (time.Time, error) {
