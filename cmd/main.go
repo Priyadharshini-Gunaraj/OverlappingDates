@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
+
+	"overlappingdates/pkg/handlers"
 
 	"github.com/gorilla/mux"
 )
@@ -12,9 +13,7 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/date-range/overlap", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode("api hit")
-	}).Methods("GET")
+	router.HandleFunc("/date-range/overlap", handlers.OverlappingHandler).Methods("POST")
 
 	srv := &http.Server{
 		Addr:         ":8080",
