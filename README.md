@@ -18,3 +18,7 @@
 - added handler function which handles the logic of comapring date ranges
 
 <img width="1048" alt="Screenshot 2023-03-29 at 6 40 43 PM" src="https://user-images.githubusercontent.com/22546296/228706172-66c1303e-436e-401e-9acb-d9829a8cd29d.png">
+
+- added parse function to parse the input dates to catch wrong date formats
+
+<img width="1014" alt="Screenshot 2023-03-29 at 7 29 54 PM" src="https://user-images.githubusercontent.com/22546296/228712942-b3270361-4750-4713-94c0-d7979f885aee.png">
