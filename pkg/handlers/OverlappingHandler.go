@@ -9,6 +9,11 @@ import (
 	"github.com/golang/protobuf/jsonpb"
 )
 
+type parsedDates struct {
+	StartDate time.Time
+	EndDate   time.Time
+}
+
 func OverlappingHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	req := &pb.OverlappingRequest{}
@@ -18,15 +23,12 @@ func OverlappingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse each start and end dates
-	err = parseDates(req)
+	// Check if date ranges overlap
+	overlap, err := checkOverlap(req.Range1, req.Range2)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	// Check if date ranges overlap
-	overlap := checkOverlap(req.Range1, req.Range2)
 
 	// Create response
 	res := &pb.OverlappingResponse{Overlap: overlap}
@@ -41,36 +43,48 @@ func OverlappingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseDates(req *pb.OverlappingRequest) error {
-	_, err := parseISODate(req.Range1.StartDate)
+func parseDateRange(r *pb.DateRange) (parsedDates, error) {
+	var pd parsedDates
+	StartDate, err := parseDate(r.StartDate)
 	if err != nil {
-		return err
+		return pd, err
 	}
-	_, err = parseISODate(req.Range1.EndDate)
+	EndDate, err := parseDate(r.EndDate)
 	if err != nil {
-		return err
+		return pd, err
 	}
+	pd.StartDate = StartDate
+	pd.EndDate = EndDate
+	return pd, nil
+}
 
-	_, err = parseISODate(req.Range2.StartDate)
+func parseDate(date string) (time.Time, error) {
+	d, err := parseISODate(date)
 	if err != nil {
-		return err
+		return time.Now(), err
 	}
-	_, err = parseISODate(req.Range2.EndDate)
-	if err != nil {
-		return err
-	}
-	return nil
+	return d, nil
 }
 
 func parseISODate(dateStr string) (time.Time, error) {
 	return time.Parse(time.RFC3339, dateStr)
 }
 
-func checkOverlap(range1, range2 *pb.DateRange) bool {
-	// Compare start times
-	if range1.StartDate > range2.EndDate || range2.StartDate > range1.EndDate {
-		return false
+func checkOverlap(range1, range2 *pb.DateRange) (bool, error) {
+	// Parse each start and end dates
+	parsedRange1, err := parseDateRange(range1)
+	if err != nil {
+		return false, err
+	}
+	parsedRange2, err := parseDateRange(range2)
+	if err != nil {
+		return false, err
 	}
 
-	return true
+	// Compare start times
+	if parsedRange1.StartDate.After(parsedRange2.EndDate) || parsedRange2.StartDate.After(parsedRange1.EndDate) {
+		return false, nil
+	}
+
+	return true, nil
 }
